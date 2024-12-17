@@ -1,8 +1,11 @@
 import * as assert from 'assert';
-import * as bip32 from 'bip32';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 import * as bip39 from 'bip39';
 import { describe, it } from 'mocha';
-import * as bitcoin from '../..';
+import * as bitcoin from 'bitcoinjs-lib';
+
+const bip32 = BIP32Factory(ecc);
 
 function getAddress(node: any, network?: any): string {
   return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address!;
@@ -57,10 +60,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
     const child1 = root.derivePath(path);
 
     // option 2, manually
-    const child1b = root
-      .deriveHardened(0)
-      .derive(0)
-      .derive(0);
+    const child1b = root.deriveHardened(0).derive(0).derive(0);
 
     assert.strictEqual(
       getAddress(child1),
@@ -123,7 +123,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
     // var mnemonic = bip39.generateMnemonic()
     const mnemonic =
       'praise you muffin lion enable neck grocery crumble super myself license ghost';
-    assert(bip39.validateMnemonic(mnemonic));
+    assert.strictEqual(bip39.validateMnemonic(mnemonic), true);
 
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed);
